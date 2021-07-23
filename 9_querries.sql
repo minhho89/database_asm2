@@ -63,22 +63,54 @@ FROM journalist A INNER JOIN journalist B
 ORDER BY editor_name;
 
 -- Outer join
--- Hiển thị tất cả tên các độc giả đăng ký có comment vào bài báo bất kỳ
---(kể cả các độc giả chưa comment(), mã bài báo cùng với nội dung comment
+-- hiển thị tất cả tên các độc giả đăng ký có comment và chưa comment vào bài báo bất kỳ, 
+-- mã bài báo, nội dung comment 
 SELECT r.regReaderID, r.name, c.articleID, c.comment
 FROM registeredReader r FULL OUTER JOIN comment c
     ON c.regReaderID = r.regReaderID;
+
+-- Union
+-- hiển thị thông tin phóng viên có đăng bài trong chuyên mục 'society' (cat 05) và 'sports' (cat01)
+    SELECT j.*
+    FROM journalist j, article a, article_categories ac
+    WHERE j.journalistID = a.author AND a.articleID = ac.articleID
+        AND ac.categoryID = 'cat05'
+UNION
+    (SELECT j.*
+    FROM journalist j, article a, article_categories ac
+    WHERE j.journalistID = a.author AND a.articleID = ac.articleID
+        AND ac.categoryID = 'cat01');
+
+-- Intersect
+-- hiển thị thông tin phóng viên có đăng bài trong chuyên mục 'society' (cat 05) và đang ở trạng thái 'pending'
+    (SELECT j.*
+    FROM journalist j, article a, article_categories ac
+    WHERE j.journalistID = a.author AND a.articleID = ac.articleID
+        AND ac.categoryID = 'cat05')
+INTERSECT
+    (SELECT j.*
+    FROM journalist j, article a
+    WHERE j.journalistID = a.author
+        AND [status] = 'pending')
+
+
+
+-- Intersect
+-- hiển thị thông tin phóng viên có đăng 
+
+SELECT *
+FROM category
 
 -- 9) === Truy vấn sử dụng With. ===
 -- Hiển thị mã bài báo, tựa đề, tóm tắt của các bài báo
 -- thuộc chuyên mục 'technology'
 WITH
     publishedArt
-    AS
-    (
+AS
+(
         SELECT *
-        FROM article
-        WHERE [status] = 'published'
+FROM article
+WHERE [status] = 'published'
     )
 SELECT p.articleID, p.title, p.summary
 FROM publishedArt p, article_categories ac, category c
