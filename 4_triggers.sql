@@ -6,6 +6,7 @@ ALTER DATABASE ASM2
 GO
 
 -- Update content word count at table article
+-- using fn_wordCount
 IF EXISTS (SELECT *
 FROM sys.objects
 WHERE name = 'trg_article_wordCount')
